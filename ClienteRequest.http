@@ -1,0 +1,39 @@
+### GET
+GET localhost:8080/clientes
+
+### GET
+GET localhost:8080/clientes/1
+
+### POST
+POST localhost:8080/clientes
+Content-Type: application/json
+
+{
+  "nome": "Pedro Henrique",
+  "idade": 22,
+  "email": "pedro@email.com",
+  "ativo": true
+}
+
+### PUT
+PUT localhost:8080/clientes/1
+Content-Type: application/json
+
+{
+  "nome": "",
+  "idade": ,
+  "email": "",
+  "ativo": true
+}
+
+### DELETE
+DELETE localhost:8080/clientes/1
+
+### DELETE
+DELETE localhost:8080/clientes
+
+### GET
+GET localhost:8080/clientes/1/ativo
+
+### GET
+GET localhost:8080/clientes/1/idade-valida
