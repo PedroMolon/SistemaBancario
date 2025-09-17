@@ -43,6 +43,12 @@ public class ContaCorrenteController {
         contaCorrenteService.delete(id);
     }
 
+    @PostMapping("/{id}/ativar")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean active(@PathVariable Long id) {
+        return contaCorrenteService.active(id);
+    }
+
     @GetMapping("/{id}/ativa")
     @ResponseStatus(HttpStatus.OK)
     public boolean isActive(@PathVariable Long id) {

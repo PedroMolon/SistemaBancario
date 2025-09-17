@@ -58,18 +58,21 @@ public class TerminalClient {
                     desativarConta();
                     break;
                 case 13:
-                    verificarSeContaEstaAtiva();
+                    ativarConta();
                     break;
                 case 14:
-                    verificarSaldoConta();
+                    verificarSeContaEstaAtiva();
                     break;
                 case 15:
-                    transferirEntreContas();
+                    verificarSaldoConta();
                     break;
                 case 16:
-                    sacarDaConta();
+                    transferirEntreContas();
                     break;
                 case 17:
+                    sacarDaConta();
+                    break;
+                case 18:
                     depositarNaConta();
                     break;
                 case 0:
@@ -96,11 +99,12 @@ public class TerminalClient {
         System.out.println("10. Buscar Todas as Contas");
         System.out.println("11. Buscar Conta por ID");
         System.out.println("12. Desativar Conta");
-        System.out.println("13. Verificar se Conta está Ativa");
-        System.out.println("14. Verificar Saldo da Conta");
-        System.out.println("15. Transferir entre Contas");
-        System.out.println("16. Sacar da Conta");
-        System.out.println("17. Depositar na Conta");
+        System.out.println("13. Ativar Conta");
+        System.out.println("14. Verificar se Conta está Ativa");
+        System.out.println("15. Verificar Saldo da Conta");
+        System.out.println("16. Transferir entre Contas");
+        System.out.println("17. Sacar da Conta");
+        System.out.println("18. Depositar na Conta");
         System.out.println("0. Sair");
         System.out.print("Escolha uma opção: ");
     }
@@ -336,6 +340,22 @@ public class TerminalClient {
         System.out.println("Corpo da resposta: " + response.body());
     }
 
+    private static void ativarConta() throws IOException, InterruptedException {
+        System.out.println("Digite o ID da conta a ser ativada: ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/contas/" + id + "/ativar"))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("Resposta do servidor: " + response.statusCode());
+        System.out.println("Corpo da resposta: " + response.body());
+    }
+
     private static void verificarSeContaEstaAtiva() throws IOException, InterruptedException {
         System.out.println("Digite o ID da conta para verificar se está ativa: ");
         long id = scanner.nextLong();
@@ -378,19 +398,22 @@ public class TerminalClient {
         scanner.nextLine();
 
         System.out.println("Digite o valor a ser transferido: ");
-        double valor = scanner.nextDouble();
-        scanner.nextLine();
+        Double valor = lerValorMonetario();
+        if (valor == null) return;
+        if (valor <= 0) {
+            System.out.println("O valor deve ser maior que zero!");
+            return;
+        }
 
         String jsonRequest = String.format("""
                 {
-                    "idOrigem": %d,
-                    "idDestino": %d,
-                    "valor": %.2f
+                    "contaDestino": %d,
+                    "valor": %s
                 }
-                """, idOrigem, idDestino, valor);
+                """, idDestino, String.valueOf(valor));
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/contas/transferir"))
+                .uri(URI.create(BASE_URL + "/contas/" + idOrigem + "/transferir"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                 .build();
@@ -407,14 +430,18 @@ public class TerminalClient {
         scanner.nextLine();
 
         System.out.println("Digite o valor a ser sacado: ");
-        double valor = scanner.nextDouble();
-        scanner.nextLine();
+        Double valor = lerValorMonetario();
+        if (valor == null) return;
+        if (valor <= 0) {
+            System.out.println("O valor deve ser maior que zero!");
+            return;
+        }
 
         String jsonRequest = String.format("""
                 {
-                    "valor": %.2f
+                    "valor": %s
                 }
-                """, valor);
+                """, String.valueOf(valor));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/contas/" + contaId + "/sacar"))
@@ -434,14 +461,18 @@ public class TerminalClient {
         scanner.nextLine();
 
         System.out.println("Digite o valor a ser depositado: ");
-        double valor = scanner.nextDouble();
-        scanner.nextLine();
+        Double valor = lerValorMonetario();
+        if (valor == null) return;
+        if (valor <= 0) {
+            System.out.println("O valor deve ser maior que zero!");
+            return;
+        }
 
         String jsonRequest = String.format("""
                 {
-                    "valor": %.2f
+                    "valor": %s
                 }
-                """, valor);
+                """, String.valueOf(valor));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/contas/" + contaId + "/depositar"))
@@ -453,5 +484,30 @@ public class TerminalClient {
 
         System.out.println("Resposta do servidor: " + response.statusCode());
         System.out.println("Corpo da resposta: " + response.body());
+    }
+
+    // FUNÇÕES AUXILIARES
+    private static Double lerValorMonetario() {
+        String entrada = scanner.nextLine().trim();
+
+        if (entrada.isEmpty()) {
+            System.out.println("Nenhum valor informado!");
+            return null;
+        }
+
+        entrada = entrada.replace("R$", "").replaceAll("\\s", "");
+
+        if (entrada.contains(",") && entrada.contains(".")) {
+            entrada = entrada.replace(",", "").replace(".", "");
+        } else if (entrada.contains(",") && !entrada.contains(".")) {
+            entrada = entrada.replace(",", ".");
+        }
+
+        try {
+            return Double.parseDouble(entrada);
+        } catch (NumberFormatException e) {
+            System.out.println("Valor inválido. Use formato como 1234.56 ou 1.234,56");
+            return null;
+        }
     }
 }

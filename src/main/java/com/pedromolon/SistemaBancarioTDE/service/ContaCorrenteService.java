@@ -67,6 +67,19 @@ public class ContaCorrenteService {
         }
     }
 
+    public boolean active(Long id) {
+        ContaCorrente conta = contaCorrenteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Conta corrente não encontrada com o id: " + id));
+
+        if (conta.isAtiva()) {
+            throw new IllegalStateException("A conta já está ativa.");
+        }
+
+        conta.setAtiva(true);
+        contaCorrenteRepository.save(conta);
+        return conta.isAtiva();
+    }
+
     public boolean isActive(Long id) {
         ContaCorrente conta = contaCorrenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Conta corrente não encontrada com o id: " + id));
