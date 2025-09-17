@@ -6,7 +6,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 public record ContaCorrenteRequest(
 
-        @PositiveOrZero(message = "Saldo deve ser maior ou igual a zero")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        @PositiveOrZero(message = "Saldo deve ser zero")
         double saldo,
 
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)

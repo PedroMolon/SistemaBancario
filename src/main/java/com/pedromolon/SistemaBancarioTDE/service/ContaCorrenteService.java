@@ -43,6 +43,10 @@ public class ContaCorrenteService {
             throw new IllegalStateException("Não é possível criar conta para um cliente inativo.");
         }
 
+        if (cliente.getContaCorrente() != null) {
+            throw new IllegalStateException("O cliente já possui uma conta corrente.");
+        }
+
         ContaCorrente conta = contaCorrenteMapper.toEntity(request);
         conta.setCliente(cliente);
         conta.setAtiva(true);
@@ -67,6 +71,12 @@ public class ContaCorrenteService {
         ContaCorrente conta = contaCorrenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Conta corrente não encontrada com o id: " + id));
         return conta.isAtiva();
+    }
+
+    public Double getSaldo(Long id) {
+        ContaCorrente conta = contaCorrenteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Conta corrente não encontrada com o id: " + id));
+        return conta.getSaldo();
     }
 
     @Transactional

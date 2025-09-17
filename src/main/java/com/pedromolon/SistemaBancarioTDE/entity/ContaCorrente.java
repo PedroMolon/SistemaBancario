@@ -24,6 +24,12 @@ public class ContaCorrente {
     @JoinColumn(name = "id_cliente", nullable = false, unique = true)
     private Cliente cliente;
 
+    @PrePersist
+    public void prePersist() {
+        this.saldo = 0.0;
+        this.ativa = true;
+    }
+
     @Override
     public String toString() {
         return "ContaCorrente{" +

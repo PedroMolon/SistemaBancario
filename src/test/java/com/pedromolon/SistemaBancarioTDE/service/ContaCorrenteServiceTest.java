@@ -182,11 +182,19 @@ public class ContaCorrenteServiceTest {
     // casos de falha
 
     @Test
+    void deveLancarExcecaoQuandoClienteJaTiverContaAtiva() {
+        cliente.setContaCorrente(contaCorrenteSalva);
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+
+        assertThrows(IllegalStateException.class, () -> contaCorrenteService.save(contaCorrenteRequest));
+        verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
+    }
+
+    @Test
     void deveLancarExcecaoQuandoSalvarContaCorrenteComClienteInexistente() {
         when(clienteRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.save(contaCorrenteRequest));
-
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
 
@@ -196,7 +204,6 @@ public class ContaCorrenteServiceTest {
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
 
         assertThrows(IllegalStateException.class, () -> contaCorrenteService.save(contaCorrenteRequest));
-
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
 
@@ -205,7 +212,6 @@ public class ContaCorrenteServiceTest {
         when(contaCorrenteRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.findById(1L));
-
         verify(contaCorrenteRepository, times(1)).findById(1L);
     }
 
@@ -214,7 +220,6 @@ public class ContaCorrenteServiceTest {
         when(contaCorrenteRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.delete(99L));
-
         verify(contaCorrenteRepository, times(1)).findById(99L);
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -224,7 +229,6 @@ public class ContaCorrenteServiceTest {
         when(contaCorrenteRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.isActive(99L));
-
         verify(contaCorrenteRepository, times(1)).findById(99L);
     }
 
@@ -241,6 +245,7 @@ public class ContaCorrenteServiceTest {
     @Test
     void deveLancarExcecaoAoSacarValorZero() {
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.of(contaCorrenteSalva));
+
         assertThrows(IllegalArgumentException.class, () -> contaCorrenteService.sacar(1L, 0.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -248,6 +253,7 @@ public class ContaCorrenteServiceTest {
     @Test
     void deveLancarExcecaoAoSacarDeContaInexistente() {
         when(contaCorrenteRepository.findById(anyLong())).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.sacar(99L, 100.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -270,6 +276,7 @@ public class ContaCorrenteServiceTest {
         ContaCorrente contaDestino = new ContaCorrente(2L, 1000.0, true, cliente);
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.of(contaCorrenteSalva));
         when(contaCorrenteRepository.findById(2L)).thenReturn(Optional.of(contaDestino));
+
         assertThrows(IllegalStateException.class, () -> contaCorrenteService.transferir(1L, 2L, -100.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -279,6 +286,7 @@ public class ContaCorrenteServiceTest {
         ContaCorrente contaDestino = new ContaCorrente(2L, 1000.0, true, cliente);
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.of(contaCorrenteSalva));
         when(contaCorrenteRepository.findById(2L)).thenReturn(Optional.of(contaDestino));
+
         assertThrows(IllegalStateException.class, () -> contaCorrenteService.transferir(1L, 2L, 0.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -286,6 +294,7 @@ public class ContaCorrenteServiceTest {
     @Test
     void deveLancarExcecaoAoTransferirDeContaInexistente() {
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.transferir(1L, 2L, 100.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -294,6 +303,7 @@ public class ContaCorrenteServiceTest {
     void deveLancarExcecaoAoTransferirParaContaInexistente() {
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.of(contaCorrenteSalva));
         when(contaCorrenteRepository.findById(2L)).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.transferir(1L, 2L, 100.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -322,13 +332,13 @@ public class ContaCorrenteServiceTest {
     @Test
     void deveLancarExcecaoAoTransferirParaAMesmaConta() {
         assertThrows(IllegalArgumentException.class, () -> contaCorrenteService.transferir(1L, 1L, 100.0));
-
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
 
     @Test
     void deveLancarExcecaoAoDepositarValorNegativo() {
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.of(contaCorrenteSalva));
+
         assertThrows(IllegalArgumentException.class, () -> contaCorrenteService.depositar(1L, -100.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -336,6 +346,7 @@ public class ContaCorrenteServiceTest {
     @Test
     void deveLancarExcecaoAoDepositarValorZero() {
         when(contaCorrenteRepository.findById(1L)).thenReturn(Optional.of(contaCorrenteSalva));
+
         assertThrows(IllegalArgumentException.class, () -> contaCorrenteService.depositar(1L, 0.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -343,6 +354,7 @@ public class ContaCorrenteServiceTest {
     @Test
     void deveLancarExcecaoAoDepositarEmContaInexistente() {
         when(contaCorrenteRepository.findById(anyLong())).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> contaCorrenteService.depositar(99L, 100.0));
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
@@ -354,7 +366,6 @@ public class ContaCorrenteServiceTest {
 
         assertThrows(IllegalStateException.class, () -> contaCorrenteService.sacar(1L, 100.0));
         assertThrows(IllegalStateException.class, () -> contaCorrenteService.depositar(1L, 100.0));
-
         verify(contaCorrenteRepository, never()).save(any(ContaCorrente.class));
     }
 

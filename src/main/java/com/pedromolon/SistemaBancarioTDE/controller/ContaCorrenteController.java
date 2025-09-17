@@ -43,10 +43,16 @@ public class ContaCorrenteController {
         contaCorrenteService.delete(id);
     }
 
-    @GetMapping("/{id}/ativo")
+    @GetMapping("/{id}/ativa")
     @ResponseStatus(HttpStatus.OK)
     public boolean isActive(@PathVariable Long id) {
         return contaCorrenteService.isActive(id);
+    }
+
+    @GetMapping("/{id}/saldo")
+    @ResponseStatus(HttpStatus.OK)
+    public double getSaldo(@PathVariable Long id) {
+        return contaCorrenteService.getSaldo(id);
     }
 
     @PostMapping("/{idOrigem}/transferir")
