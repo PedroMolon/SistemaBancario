@@ -41,7 +41,7 @@ public class ClienteController {
         return clienteService.update(id, request);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/ativar")
     @ResponseStatus(HttpStatus.OK)
     public boolean active(@PathVariable Long id) {
         return clienteService.activate(id);

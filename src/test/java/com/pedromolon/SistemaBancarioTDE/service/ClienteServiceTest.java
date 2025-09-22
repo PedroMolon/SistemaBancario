@@ -28,55 +28,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ClienteServiceTest {
 
-    /*
-    Testes de sucesso:
-    - salvar:
-        salvar com sucesso;
-        salvar com 18 anos de idade;
-        salvar com 65 anos de idade;
-    - buscar todos:
-        buscar todos os clientes;
-        buscar lista vazia;
-    - buscar por id:
-        buscar cliente por id com sucesso;
-    - atualizar:
-        atualiza cliente com sucesso;
-    - ativar cliente:
-        ativa cliente com sucesso;
-        ativa conta quando cliente for ativo e conta estiver inativa;
-    - desativar cliente:
-        desativa cliente com sucesso;
-        desativa conta ao deletar cliente;
-        desativa todas contas ativas ao desativar todos clientes;
-        não desativa conta ao deletar cliente inativa;
-    - desativar todos os clientes:
-        desativa todos os clientes com sucesso;
-    - verificar idade do cliente:
-        verifica se idade esta entre 18 e 65 anos;
-        verificar idade igual a 18 anos;
-        verificar idade igual a 65 anos;
-    - verifica se cliente esta ativo:
-        verifica se o cliente esta ativo;
-        verifica se o cliente esta inativo;
-
-    Testes de falha:
-    - salvar:
-        salvar cliente com idade menor que 18 anos;
-        salvar cliente com idade maior que 65 anos;
-    - buscar por id:
-        buscar cliente inexistente;
-    - atualizar:
-        atualizar cliente inexistente;
-        atualizar cliente com idade menor que 18 anos;
-        atualizar cliente com idade maior que 65 anos;
-    - desativar cliente:
-        desativar cliente inexistente
-    - verificar idade do cliente:
-        verificar idade do cliente inexistente;
-    - verifica se cliente esta ativo:
-        verificar atividade do cliente inexistente;
-     */
-
     @Mock
     private ClienteRepository clienteRepository;
 

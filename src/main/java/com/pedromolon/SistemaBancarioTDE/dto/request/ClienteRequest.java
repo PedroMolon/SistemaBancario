@@ -8,6 +8,8 @@ public record ClienteRequest(
         String nome,
 
         @NotNull(message = "Idade é obrigatória")
+        @Min(value = 18, message = "Idade deve ser no mínimo 18 anos")
+        @Max(value = 65, message = "Idade deve ser no máximo 65 anos")
         int idade,
 
         @Email(message = "E-mail deve ser válido")
