@@ -1,6 +1,8 @@
 # Sistema Bancário TDE
 
 Este é um projeto de um sistema bancário simples, desenvolvido para a disciplina de Teste de Software.
+O projeto foi desenvolvido em Java e utiliza o framework Spring Boot para a construção da API RESTful.
+O banco de dados utilizado foi o PostgreSQL via Docker, com migrações gerenciadas pelo Flyway.
 
 ## Tecnologias Utilizadas
 
@@ -12,6 +14,18 @@ Este é um projeto de um sistema bancário simples, desenvolvido para a discipli
 *   JUnit 5
 *   Mockito
 *   MockMvc
+
+## Funcionalidades
+
+O sistema oferece as seguintes operações bancárias:
+
+* Cadastro e gerenciamento de clientes
+* Criação e gerenciamento de contas correntes
+* Operações financeiras:
+    * Depósito
+    * Saque
+    * Transferência entre contas
+    * Consulta de saldo
 
 ## Como Executar
 
