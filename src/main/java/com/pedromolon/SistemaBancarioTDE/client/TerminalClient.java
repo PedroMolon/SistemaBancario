@@ -37,42 +37,45 @@ public class TerminalClient {
                     desativarCliente();
                     break;
                 case 6:
-                    desativarTodosClientes();
+                    ativarCliente();
                     break;
                 case 7:
-                    verificarSeClienteEstaAtivo();
+                    desativarTodosClientes();
                     break;
                 case 8:
-                    verificarSeIdadeEValida();
+                    verificarSeClienteEstaAtivo();
                     break;
                 case 9:
-                    criarConta();
+                    verificarSeIdadeEValida();
                     break;
                 case 10:
-                    buscarTodasContas();
+                    criarConta();
                     break;
                 case 11:
-                    buscarContaPorId();
+                    buscarTodasContas();
                     break;
                 case 12:
-                    desativarConta();
+                    buscarContaPorId();
                     break;
                 case 13:
-                    ativarConta();
+                    desativarConta();
                     break;
                 case 14:
-                    verificarSeContaEstaAtiva();
+                    ativarConta();
                     break;
                 case 15:
-                    verificarSaldoConta();
+                    verificarSeContaEstaAtiva();
                     break;
                 case 16:
-                    transferirEntreContas();
+                    verificarSaldoConta();
                     break;
                 case 17:
-                    sacarDaConta();
+                    transferirEntreContas();
                     break;
                 case 18:
+                    sacarDaConta();
+                    break;
+                case 19:
                     depositarNaConta();
                     break;
                 case 0:
@@ -92,19 +95,20 @@ public class TerminalClient {
         System.out.println("3. Buscar Cliente por ID");
         System.out.println("4. Atualizar Cliente");
         System.out.println("5. Desativar Cliente");
-        System.out.println("6. Desativar Todos os Clientes");
-        System.out.println("7. Verificar se Cliente está Ativo");
-        System.out.println("8. Verificar se Idade é Válida");
-        System.out.println("9. Criar Conta");
-        System.out.println("10. Buscar Todas as Contas");
-        System.out.println("11. Buscar Conta por ID");
-        System.out.println("12. Desativar Conta");
-        System.out.println("13. Ativar Conta");
-        System.out.println("14. Verificar se Conta está Ativa");
-        System.out.println("15. Verificar Saldo da Conta");
-        System.out.println("16. Transferir entre Contas");
-        System.out.println("17. Sacar da Conta");
-        System.out.println("18. Depositar na Conta");
+        System.out.println("6. Ativar Cliente");
+        System.out.println("7. Desativar Todos os Clientes");
+        System.out.println("8. Verificar se o Cliente Esta Ativo");
+        System.out.println("9. Verificar se a Idade do Cliente é Válida");
+        System.out.println("10. Criar Conta");
+        System.out.println("11. Buscar Todas as Contas");
+        System.out.println("12. Buscar Conta por ID");
+        System.out.println("13. Desativar Conta");
+        System.out.println("14. Ativar Conta");
+        System.out.println("15. Verificar se a Conta Está Ativa");
+        System.out.println("16. Verificar Saldo da Conta");
+        System.out.println("17. Transferir Entre Contas");
+        System.out.println("18. Sacar da Conta");
+        System.out.println("19. Depositar na Conta");
         System.out.println("0. Sair");
         System.out.print("Escolha uma opção: ");
     }
@@ -204,6 +208,22 @@ public class TerminalClient {
                 .uri(URI.create(BASE_URL + "/clientes/" + id))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(jsonRequest))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("Resposta do servidor: " + response.statusCode());
+        System.out.println("Corpo da resposta: " + response.body());
+    }
+
+    private static void ativarCliente() throws IOException, InterruptedException {
+        System.out.println("Digite o ID do cliente a ser ativado: ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/clientes/" + id + "/ativar"))
+                .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

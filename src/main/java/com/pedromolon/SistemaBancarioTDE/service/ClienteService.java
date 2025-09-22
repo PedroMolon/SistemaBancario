@@ -15,6 +15,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClienteService {
 
+    /*
+    Métodos implementados na classe
+    - findAll: Lista todos os clientes.
+    - findById: Busca um cliente pelo id.
+    - save: salvar um cliente.
+    - update: atualizar um cliente.
+    - activate: ativar um cliente.
+    - deactivate: desativar um cliente.
+    - deactivateAll: desativar todos os clientes.
+    - isActive: verifica se o cliente está ativo.
+    - isAgeValid: verifica se a idade do cliente está entre 18 e 65
+     */
+
     private final ClienteRepository clienteRepository;
     private final ClienteMapper clienteMapper;
 
@@ -59,7 +72,17 @@ public class ClienteService {
         return clienteMapper.toResponse(clienteRepository.save(cliente));
     }
 
-    public void delete(Long id) {
+    public boolean activate(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com o id: " + id));
+        cliente.setAtivo(true);
+        if (cliente.getContaCorrente() != null && !cliente.getContaCorrente().isAtiva()) {
+            cliente.getContaCorrente().setAtiva(true);
+        }
+        return clienteRepository.save(cliente).isAtivo();
+    }
+
+    public void deactivate(Long id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com o id: " + id));
         cliente.setAtivo(false);
@@ -69,8 +92,15 @@ public class ClienteService {
         clienteRepository.save(cliente);
     }
 
-    public void deleteAll() {
-        clienteRepository.deleteAll();
+    public void deactivateAll() {
+        List<Cliente> clientes = clienteRepository.findAll();
+        clientes.forEach(cliente -> {
+            cliente.setAtivo(false);
+            if (cliente.getContaCorrente() != null && cliente.getContaCorrente().isAtiva()) {
+                cliente.getContaCorrente().setAtiva(false);
+            }
+        });
+        clienteRepository.saveAll(clientes);
     }
 
     public boolean isActive(Long id) {

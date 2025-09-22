@@ -39,14 +39,14 @@ public class ContaCorrenteController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        contaCorrenteService.delete(id);
+    public void deactivate(@PathVariable Long id) {
+        contaCorrenteService.deactivate(id);
     }
 
     @PostMapping("/{id}/ativar")
     @ResponseStatus(HttpStatus.OK)
     public boolean active(@PathVariable Long id) {
-        return contaCorrenteService.active(id);
+        return contaCorrenteService.activate(id);
     }
 
     @GetMapping("/{id}/ativa")
@@ -63,20 +63,20 @@ public class ContaCorrenteController {
 
     @PostMapping("/{idOrigem}/transferir")
     @ResponseStatus(HttpStatus.OK)
-    public void transferir(@PathVariable Long idOrigem, @RequestBody @Valid TransferenciaRequest request) {
-        contaCorrenteService.transferir(idOrigem, request.contaDestino(), request.valor());
+    public void transfer(@PathVariable Long idOrigem, @RequestBody @Valid TransferenciaRequest request) {
+        contaCorrenteService.transfer(idOrigem, request.contaDestino(), request.valor());
     }
 
     @PostMapping("/{id}/depositar")
     @ResponseStatus(HttpStatus.OK)
-    public void depositar(@PathVariable Long id, @RequestBody @Valid TransacaoRequest request) {
-        contaCorrenteService.depositar(id, request.valor());
+    public void deposit(@PathVariable Long id, @RequestBody @Valid TransacaoRequest request) {
+        contaCorrenteService.deposit(id, request.valor());
     }
 
     @PostMapping("/{id}/sacar")
     @ResponseStatus(HttpStatus.OK)
-    public void sacar(@PathVariable Long id, @RequestBody @Valid TransacaoRequest request) {
-        contaCorrenteService.sacar(id, request.valor());
+    public void withdraw(@PathVariable Long id, @RequestBody @Valid TransacaoRequest request) {
+        contaCorrenteService.withdraw(id, request.valor());
     }
 
 }

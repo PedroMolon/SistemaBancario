@@ -41,16 +41,22 @@ public class ClienteController {
         return clienteService.update(id, request);
     }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean active(@PathVariable Long id) {
+        return clienteService.activate(id);
+    }
+
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAll() {
-        clienteService.deleteAll();
+    public void deactivateAll() {
+        clienteService.deactivateAll();
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        clienteService.delete(id);
+    public void deactivate(@PathVariable Long id) {
+        clienteService.deactivate(id);
     }
 
     @GetMapping("/{id}/ativo")

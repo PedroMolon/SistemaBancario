@@ -18,6 +18,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContaCorrenteService {
 
+    /*
+    Métodos implementados na classe
+    - findAll: buscar todas contas;
+    - findById: buscar uma conta por id;
+    - save: salvar uma conta;
+    - deactivate: desativar uma conta;
+    - activate: ativar uma conta;
+    - isActive: verifica se uma conta esta ativa;
+    - getSaldo: retorna o saldo de uma conta;
+    - transfer: transferir valor entre duas contas;
+    - deposit: depositar valor na conta;
+    - withdraw: sacar valor da conta;
+     */
+
     private final ContaCorrenteRepository contaCorrenteRepository;
     private final ContaCorrenteMapper contaCorrenteMapper;
     private final ClienteRepository clienteRepository;
@@ -55,7 +69,7 @@ public class ContaCorrenteService {
         return contaCorrenteMapper.toResponse(contaCorrenteRepository.save(conta));
     }
 
-    public void delete(Long id) {
+    public void deactivate(Long id) {
         ContaCorrente conta = contaCorrenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Conta Corrente não encontrada com o id: " + id));
 
@@ -67,7 +81,7 @@ public class ContaCorrenteService {
         }
     }
 
-    public boolean active(Long id) {
+    public boolean activate(Long id) {
         ContaCorrente conta = contaCorrenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Conta corrente não encontrada com o id: " + id));
 
@@ -93,7 +107,7 @@ public class ContaCorrenteService {
     }
 
     @Transactional
-    public void transferir(Long idOrigem, Long idDestino, Double valor) {
+    public void transfer(Long idOrigem, Long idDestino, Double valor) {
         if (idOrigem.equals(idDestino)) {
             throw new IllegalArgumentException("Conta de origem e destino não podem ser as mesmas.");
         }
@@ -124,7 +138,7 @@ public class ContaCorrenteService {
     }
 
     @Transactional
-    public void depositar(Long contaId, Double valor) {
+    public void deposit(Long contaId, Double valor) {
         ContaCorrente conta = contaCorrenteRepository.findById(contaId)
                 .orElseThrow(() -> new EntityNotFoundException("Conta Corrente não encontrada com o id: " + contaId));
 
@@ -141,7 +155,7 @@ public class ContaCorrenteService {
     }
 
     @Transactional
-    public void sacar(Long contaId, Double valor) {
+    public void withdraw(Long contaId, Double valor) {
         ContaCorrente conta = contaCorrenteRepository.findById(contaId)
                 .orElseThrow(() -> new EntityNotFoundException("Conta Corrente não encontrada com o id: " + contaId));
 

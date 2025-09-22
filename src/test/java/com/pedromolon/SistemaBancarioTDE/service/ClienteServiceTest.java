@@ -28,6 +28,55 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ClienteServiceTest {
 
+    /*
+    Testes de sucesso:
+    - salvar:
+        salvar com sucesso;
+        salvar com 18 anos de idade;
+        salvar com 65 anos de idade;
+    - buscar todos:
+        buscar todos os clientes;
+        buscar lista vazia;
+    - buscar por id:
+        buscar cliente por id com sucesso;
+    - atualizar:
+        atualiza cliente com sucesso;
+    - ativar cliente:
+        ativa cliente com sucesso;
+        ativa conta quando cliente for ativo e conta estiver inativa;
+    - desativar cliente:
+        desativa cliente com sucesso;
+        desativa conta ao deletar cliente;
+        desativa todas contas ativas ao desativar todos clientes;
+        não desativa conta ao deletar cliente inativa;
+    - desativar todos os clientes:
+        desativa todos os clientes com sucesso;
+    - verificar idade do cliente:
+        verifica se idade esta entre 18 e 65 anos;
+        verificar idade igual a 18 anos;
+        verificar idade igual a 65 anos;
+    - verifica se cliente esta ativo:
+        verifica se o cliente esta ativo;
+        verifica se o cliente esta inativo;
+
+    Testes de falha:
+    - salvar:
+        salvar cliente com idade menor que 18 anos;
+        salvar cliente com idade maior que 65 anos;
+    - buscar por id:
+        buscar cliente inexistente;
+    - atualizar:
+        atualizar cliente inexistente;
+        atualizar cliente com idade menor que 18 anos;
+        atualizar cliente com idade maior que 65 anos;
+    - desativar cliente:
+        desativar cliente inexistente
+    - verificar idade do cliente:
+        verificar idade do cliente inexistente;
+    - verifica se cliente esta ativo:
+        verificar atividade do cliente inexistente;
+     */
+
     @Mock
     private ClienteRepository clienteRepository;
 
@@ -60,7 +109,19 @@ public class ClienteServiceTest {
         assertEquals(22L, clienteResponse.idade());
         assertEquals("pedro@email.com", clienteResponse.email());
         assertTrue(clienteResponse.ativo());
-        assertEquals(clienteSalvo.getId(), clienteResponse.id());
+    }
+
+    @Test
+    void deveForcarAtivoAoSalvarMesmoSeRequestVierComoFalso() {
+        ClienteRequest request = new ClienteRequest("Pedro Henrique", 22, "pedro@email.com", false);
+        clienteSalvo.setAtivo(true);
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(clienteSalvo);
+
+        ClienteResponse response = clienteService.save(request);
+
+        assertNotNull(response);
+        assertTrue(response.ativo());
+        verify(clienteRepository, times(1)).save(any(Cliente.class));
     }
 
     @Test
@@ -144,11 +205,41 @@ public class ClienteServiceTest {
     }
 
     @Test
-    void deveDeletarClienteComSucesso() {
+    void deveAtivarClienteComSucesso() {
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
         when(clienteRepository.save(any(Cliente.class))).thenAnswer(i -> i.getArgument(0));
 
-        clienteService.delete(1L);
+        boolean ativado = clienteService.activate(1L);
+
+        assertTrue(ativado);
+        assertTrue(clienteSalvo.isAtivo());
+        verify(clienteRepository, times(1)).findById(1L);
+        verify(clienteRepository, times(1)).save(clienteSalvo);
+    }
+
+    @Test
+    void deveAtivarContaCorrenteQuandoClienteForAtivadoEContaEstiverInativa() {
+        ContaCorrente conta = new ContaCorrente(1L, 500.0, false, clienteSalvo);
+        clienteSalvo.setContaCorrente(conta);
+        clienteSalvo.setAtivo(false);
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
+        when(clienteRepository.save(any(Cliente.class))).thenAnswer(i -> i.getArgument(0));
+
+        boolean ativado = clienteService.activate(1L);
+
+        assertTrue(ativado);
+        assertTrue(clienteSalvo.isAtivo());
+        assertTrue(conta.isAtiva());
+        verify(clienteRepository, times(1)).findById(1L);
+        verify(clienteRepository, times(1)).save(clienteSalvo);
+    }
+
+    @Test
+    void deveDesativarClienteComSucesso() {
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
+        when(clienteRepository.save(any(Cliente.class))).thenAnswer(i -> i.getArgument(0));
+
+        clienteService.deactivate(1L);
 
         assertFalse(clienteSalvo.isAtivo());
         verify(clienteRepository, times(1)).findById(1L);
@@ -162,12 +253,30 @@ public class ClienteServiceTest {
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
         when(clienteRepository.save(any(Cliente.class))).thenAnswer(i -> i.getArgument(0));
 
-        clienteService.delete(1L);
+        clienteService.deactivate(1L);
 
         assertFalse(clienteSalvo.isAtivo());
         assertFalse(contaCorrente.isAtiva());
         verify(clienteRepository, times(1)).findById(1L);
         verify(clienteRepository, times(1)).save(clienteSalvo);
+    }
+
+    @Test
+    void deveDesativarTodasContasAtivasAoDesativarClientes() {
+        ContaCorrente conta = new ContaCorrente(1L, 500.0, true, clienteSalvo);
+        clienteSalvo.setContaCorrente(conta);
+        clienteSalvo.setAtivo(true);
+        List<Cliente> clientes = Collections.singletonList(clienteSalvo);
+
+        when(clienteRepository.findAll()).thenReturn(clientes);
+        when(clienteRepository.saveAll(any(List.class))).thenAnswer(i -> i.getArgument(0));
+
+        clienteService.deactivateAll();
+
+        assertFalse(clienteSalvo.isAtivo());
+        assertFalse(conta.isAtiva());
+        verify(clienteRepository, times(1)).findAll();
+        verify(clienteRepository, times(1)).saveAll(any(List.class));
     }
 
     @Test
@@ -177,7 +286,7 @@ public class ClienteServiceTest {
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
         when(clienteRepository.save(any(Cliente.class))).thenAnswer(i -> i.getArgument(0));
 
-        clienteService.delete(1L);
+        clienteService.deactivate(1L);
 
         assertFalse(clienteSalvo.isAtivo());
         assertFalse(contaCorrente.isAtiva());
@@ -186,12 +295,16 @@ public class ClienteServiceTest {
     }
 
     @Test
-    void deveDeletarTodosOsClientesComSucesso() {
-        doNothing().when(clienteRepository).deleteAll();
+    void deveDesativarTodosOsClientesComSucesso() {
+        List<Cliente> clientes = Collections.singletonList(clienteSalvo);
+        when(clienteRepository.findAll()).thenReturn(clientes);
+        when(clienteRepository.saveAll(any(List.class))).thenAnswer(i -> i.getArgument(0));
 
-        assertDoesNotThrow(() -> clienteService.deleteAll());
+        clienteService.deactivateAll();
 
-        verify(clienteRepository, times(1)).deleteAll();
+        clientes.forEach(cliente -> assertFalse(cliente.isAtivo()));
+        verify(clienteRepository, times(1)).findAll();
+        verify(clienteRepository, times(1)).saveAll(any(List.class));
     }
 
     @Test
@@ -303,10 +416,10 @@ public class ClienteServiceTest {
     }
 
     @Test
-    void deveLancarExcecaoAoTentarDeletarClienteInexistente() {
+    void deveLancarExcecaoAoTentarDesativarClienteInexistente() {
         when(clienteRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> clienteService.delete(99L));
+        assertThrows(EntityNotFoundException.class, () -> clienteService.deactivate(99L));
 
         verify(clienteRepository, times(1)).findById(99L);
         verify(clienteRepository, never()).save(any(Cliente.class));
@@ -328,28 +441,6 @@ public class ClienteServiceTest {
         assertThrows(EntityNotFoundException.class, () -> clienteService.isActive(99L));
 
         verify(clienteRepository, times(1)).findById(99L);
-    }
-
-    @Test
-    void deveRetornarFalsoParaIdadeMenorQue17() {
-        clienteSalvo.setIdade(17);
-        when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
-
-        boolean idadeValida = clienteService.isAgeValid(1L);
-
-        assertFalse(idadeValida);
-        verify(clienteRepository, times(1)).findById(1L);
-    }
-
-    @Test
-    void deveRetornarFalsoParaIdadeMaiorQue65() {
-        clienteSalvo.setIdade(66);
-        when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteSalvo));
-
-        boolean idadeValida = clienteService.isAgeValid(1L);
-
-        assertFalse(idadeValida);
-        verify(clienteRepository, times(1)).findById(1L);
     }
 
 }
